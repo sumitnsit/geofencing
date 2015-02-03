@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Geolocation</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <meta charset="utf-8">
+    <style>
+      html, body, .mycontainer  {
+        height: 100%;
+        width: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+
+      #workarea{
+        width: 20%;
+        height: 100%;
+        float: left;
+        background-color: #F4F4F4;
+        padding: 20px 10px;
+        box-sizing: border-box;
+      }
+      
+      #map-canvas{
+        width: 80%;
+        height: 100%;
+      }      
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+
+    <script>
+// Note: This example requires that you consent to location sharing when
+// prompted by your browser. If you see a blank space instead of the map, this
+// is probably because you have denied permission for location sharing.
+
+var map;
+
+var locations = [
+  {
+    name: "Home",
+    active: true,
+    pos: {lat: "28.637419299999998", lng: "77.10055080000006"},
+    radius: 100
+  },
+  {
+    name: "Office",
+    active: true,
+    pos: {lat: "28.499169517906644", lng: "77.09719720314934"},
+    radius: 100    
+  }
+];
+
+  var defalutCircle = {
+    strokeColor: '#000',
+    strokeOpacity: 1,
+    strokeWeight: 0,
+    fillColor: '#000',
+    fillOpacity: 0.35,
+    editable: true,
+    dragable: true,
+    radius: 100
+  };
+
+function addGeoFencing(){
+  defalutCircle.map = map;
+  defalutCircle.center = map.getCenter();
+  var cityCircle = new google.maps.Circle(defalutCircle);
+  google.maps.event.addListener(cityCircle, 'radius_changed', function() {
+    cityCircle.setOptions({fillColor: "red"});
+   document.getElementById("locRadius").value = cityCircle.getRadius();
+  });
+
+  google.maps.event.addListener(cityCircle, 'center_changed', function() {
+    cityCircle.setOptions({fillColor: "red"});
+   document.getElementById("locLng").value = cityCircle.getCenter().lng();
+   document.getElementById("locLat").value = cityCircle.getCenter().lat();
+  });
+
+  document.getElementById("locName").value = "Home";
+  document.getElementById("locLng").value = map.getCenter().lng();
+  document.getElementById("locLat").value = map.getCenter().lat();
+  document.getElementById("locRadius").value = cityCircle.getRadius();
+
+
+  
+}
+
+function addFences(){
+  locations.forEach(function(loc){
+    var newCircle = Object.create(defalutCircle);
+  });
+}
+
+function initialize() {
+  var mapOptions = {
+    zoom: 16
+  };
+
+  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  var pos = new google.maps.LatLng(locations[0].pos.lat, locations[0].pos.lng);
+  map.setCenter(pos);
+
+  addGeoFencing();
+  // Try HTML5 geolocation
+  // if(navigator.geolocation) {
+  //   navigator.geolocation.getCurrentPosition(function(position) {
+  //     var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+
+   
+
+
+  //   }, function() {
+  //     handleNoGeolocation(true);
+  //   });
+  // } else {
+  //   // Browser doesn't support Geolocation
+  //   handleNoGeolocation(false);
+  // }
+}
+
+function handleNoGeolocation(errorFlag) {
+  if (errorFlag) {
+    var content = 'Error: The Geolocation service failed.';
+  } else {
+    var content = 'Error: Your browser doesn\'t support geolocation.';
+  }
+
+  var options = {
+    map: map,
+    position: new google.maps.LatLng(60, 105),
+    content: content
+  };
+
+  var infowindow = new google.maps.InfoWindow(options);
+  map.setCenter(options.position);
+}
+
+
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+  </head>
+  <body>
+    <div class="mycontainer">
+      <div id="workarea">
+
+        <div class="list-group">
+          <a class="list-group-item active">Home</a>
+          <a class="list-group-item">Office</a>
+          <a class="list-group-item">Walmart</a>
+          <a class="list-group-item">Gym</a>
+          <a class="list-group-item">Friend</a>
+        </div>
+
+<form>
+  <div class="form-group">
+    <label for="locName">Name</label>
+    <input type="text" class="form-control" id="locName" placeholder="Locaion Name">
+  </div>
+  <div class="form-group">
+    <label for="locLat">Latitude</label>
+    <input type="text" class="form-control" id="locLat" placeholder="Latitude">
+  </div>
+  <div class="form-group">
+    <label for="locLng">Longitude</label>
+    <input type="text" class="form-control" id="locLng" placeholder="Longitude">
+  </div>  
+  <div class="form-group">
+    <label for="locRadius">Radius</label>
+    <input type="text" class="form-control" id="locRadius" placeholder="Radius">
+  </div>    
+  <div class="checkbox">
+    <label>
+      <input type="checkbox"> Activate
+    </label>
+  </div>
+  <button type="submit" class="btn btn-default">Update</button>
+</form>
+      </div>
+      <div id="map-canvas"></div>  
+    </div>
+    
+  </body>
+</html>
